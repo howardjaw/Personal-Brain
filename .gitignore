@@ -1,0 +1,26 @@
+# Python environment
+.venv/
+venv/
+env/
+
+# Python cache/build output
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+
+# Local configuration and secrets
+.env
+.env.*
+
+# Local model files and external dependencies
+models/
+llama.cpp/
+
+# Logs and temporary files
+*.log
+*.tmp
+
+# macOS
+.DS_Store
