@@ -15,7 +15,7 @@ import requests
 import json
 
 
-LLAMA_SERVER_URL = "http://localhost:8080/v1/chat/completions"
+LLAMA_SERVER_URL = "http://127.0.0.1:8080/v1/chat/completions"
 MODEL_NAME = "local-qwen"
 TIMEOUT_SECONDS = 120
 
