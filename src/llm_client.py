@@ -14,38 +14,35 @@ There are two streaming modes : stream = True / False.
 import requests
 import json
 
-
 LLAMA_SERVER_URL = "http://127.0.0.1:8080/v1/chat/completions"
 MODEL_NAME = "local-qwen"
 TIMEOUT_SECONDS = 120
 
-SYSTEM_PROMPT = """
-You are a helpful local personal knowledge assistant.
-"""
+SYSTEM_PROMPT = """You are a helpful local personal knowledge assistant."""
 
 
-def build_messages(user_message):
-    """
-    Convert a plain user message into chat messages.
+# def build_messages(user_message):
+#     """
+#     Convert a plain user message into chat messages.
 
-    Return a list of message dictionaries.
-    """
-    messages = []
+#     Return a list of message dictionaries.
+#     """
+#     messages = []
 
-    system_message = {
-        "role" : "system",
-        "content" : SYSTEM_PROMPT
-    }
+#     system_message = {
+#         "role" : "system",
+#         "content" : SYSTEM_PROMPT
+#     }
 
-    parsed_user_message = {
-        "role" : "user",
-        "content" : user_message
-    }
+#     parsed_user_message = {
+#         "role" : "user",
+#         "content" : user_message
+#     }
 
-    messages.append(system_message)
-    messages.append(parsed_user_message)
+#     messages.append(system_message)
+#     messages.append(parsed_user_message)
 
-    return messages
+#     return messages
 
 
 def build_payload(messages, stream=False):
@@ -63,21 +60,21 @@ def build_payload(messages, stream=False):
     return payload
 
 
-def send_request(payload):
-    """
-    Send the payload to llama-server using HTTP POST.
+# def send_request(payload):
+#     """
+#     Send the payload to llama-server using HTTP POST.
 
-    Return the parsed JSON response.
-    """
-    response = requests.post(
-        LLAMA_SERVER_URL,
-        json=payload,
-        timeout = TIMEOUT_SECONDS
-    )
+#     Return the parsed JSON response.
+#     """
+#     response = requests.post(
+#         LLAMA_SERVER_URL,
+#         json=payload,
+#         timeout = TIMEOUT_SECONDS
+#     )
 
-    response.raise_for_status()
+#     response.raise_for_status()
 
-    return response.json()
+#     return response.json()
 
 def stream_request(payload):
     """
@@ -94,9 +91,11 @@ def stream_request(payload):
 
     response.raise_for_status()
 
-    for line in response.iter_lines(decode_unicode=True):
-        if not line:
+    for raw_line in response.iter_lines():
+        if not raw_line:
             continue
+
+        line = raw_line.decode("utf-8")
 
         if not line.startswith("data: "):
             continue
@@ -119,48 +118,48 @@ def stream_request(payload):
         if content:
             yield content
 
-def parse_response(response_json):
-    """
-    Extract the assistant's final answer from llama-server's JSON response.
-    """
-    choices = response_json["choices"]
-    first_choice = choices[0]
-    message = first_choice["message"]
-    content = message["content"]
+# def parse_response(response_json):
+#     """
+#     Extract the assistant's final answer from llama-server's JSON response.
+#     """
+#     choices = response_json["choices"]
+#     first_choice = choices[0]
+#     message = first_choice["message"]
+#     content = message["content"]
 
-    return content
+#     return content
 
 
-def ask_llm(user_message):
+# def ask_llm(user_message):
+#     """
+#     Main public function.
+
+#     Other parts of the project should call this function instead of calling
+#     llama-server directly.
+#     """
+#     messages = build_messages(user_message)
+#     payload = build_payload(messages, stream = False)
+#     response_json = send_request(payload)
+#     answer = parse_response(response_json)
+
+#     return answer
+
+def stream_llm(messages):
     """
-    Main public function.
-
-    Other parts of the project should call this function instead of calling
-    llama-server directly.
+    Main public function for streaming mode.
     """
-    messages = build_messages(user_message)
-    payload = build_payload(messages, stream = False)
-    response_json = send_request(payload)
-    answer = parse_response(response_json)
-
-    return answer
-
-def stream_llm(user_message):
-    """
-    Main public functino for streaming mode.
-    """
-    messages = build_messages(user_message)
     payload = build_payload(messages, stream = True)
-    for chunck in stream_request(payload):
+    stream = stream_request(payload)
+    for chunck in stream:
         yield chunck
 
-if __name__ == "__main__":
-    """
-    In streaming mode in default. 
+# if __name__ == "__main__":
+#     """
+#     In streaming mode in default. 
     
-    If non-streaming mode, call ask_llm instead & print answer directly.
-    """
-    user_message = input("type your question here: ")
-    for chunck in stream_llm(user_message):
-        print(chunck, end="", flush=True)
-    print()
+#     If non-streaming mode, call ask_llm instead & print answer directly.
+#     """
+#     user_message = input("type your question here: ")
+#     for chunck in stream_llm(user_message):
+#         print(chunck, end="", flush=True)
+#     print()
