@@ -151,12 +151,11 @@ def ingest_all_documents():
     doc_paths = list_raw_documents()
 
     for doc in doc_paths:
-        test_output_path = build_output_path(doc)
-        if test_output_path.exists():
+        expected_output_path = build_output_path(doc)
+        if expected_output_path.exists():
             continue
-        else:
-            output_path = ingest_document(doc)
-            output_paths.append(output_path)
+        output_path = ingest_document(doc)
+        output_paths.append(output_path) 
     
     return output_paths
 
